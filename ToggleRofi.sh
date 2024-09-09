@@ -1,4 +1,4 @@
-#!/bin/fish
+#!/bin/bash
 
 if pgrep -x rofi >/dev/null
     pkill -x rofi
