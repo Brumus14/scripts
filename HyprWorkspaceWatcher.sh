@@ -7,6 +7,6 @@ socat -u UNIX-CONNECT:$XDG_RUNTIME_DIR/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket
             if [ ${workspace} -le 5 ]; then
                 eww update "workspace0"=${workspace}
             else
-                eww update "workspace1"=$((workspace - 5))
+                eww update "workspace1"=$((workspace - 9))
             fi
         done
