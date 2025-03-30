@@ -1,12 +1,42 @@
 #!/usr/bin/env sh
 
-direction=$1
+arg=$1
 
-    if [ "$direction" == "-" ]; then
+#!/bin/bash
+
+action=$1
+
+if [ "$monitor_name" == "" ]; then
+    monitor_data=$(hyprctl monitors -j)
+    monitor_name=$(echo $monitor_data | jq -r '.[] | select(.focused == true) | .name')
+else
+    monitor_name=$2
+fi
+
+if [ "$monitor_name" == "eDP-1" ]; then
+    if [ "$action" == "g" ]; then
+        light -G
+    elif [ "$action" == "-" ]; then
         sudo light -U 5
-    else
+    elif [ "$action" == "+" ]; then
         sudo light -A 5
+    else
+        sudo light -S "$action"
     fi
+else
+    if [ "$action" == "g" ]; then
+        ddcutil getvcp 10 | sed -n 's/.*current value = *\([0-9]*\).*/\1/p'
+    else
+        if [ "$action" == "-" ]; then
+            ddcutil setvcp 10 - 5
+        elif [ "$action" == "+" ]; then
+            ddcutil setvcp 10 + 5
+        else
+            ddcutil setvcp 10 "$action"
+        fi
+    fi
+fi
+
 
 
 # direction=$1

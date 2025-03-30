@@ -40,6 +40,6 @@ socat - "UNIX-CONNECT:$XDG_RUNTIME_DIR/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket
             eww reload
             eww open "bar$id"
             
-            hyprctl dispatch exec "[floating; monitor 0; stayfocused; pin; center]" nwg-displays
+            # hyprctl dispatch exec "[floating; monitor 0; stayfocused; pin; center]" nwg-displays
         fi
     done
