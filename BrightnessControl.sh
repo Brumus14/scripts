@@ -5,13 +5,15 @@ arg=$1
 #!/bin/bash
 
 action=$1
+monitor_name=$2
+monitor_data=$(hyprctl monitors -j)
 
 if [ "$monitor_name" == "" ]; then
-    monitor_data=$(hyprctl monitors -j)
     monitor_name=$(echo $monitor_data | jq -r '.[] | select(.focused == true) | .name')
-else
-    monitor_name=$2
 fi
+
+monitor_id=$(echo "$monitor_data" | jq -r ".[] | select(.name == \"$monitor_name\") | .id")
+ddcutil_id=$((monitor_id + 1))
 
 if [ "$monitor_name" == "eDP-1" ]; then
     if [ "$action" == "g" ]; then
@@ -25,14 +27,14 @@ if [ "$monitor_name" == "eDP-1" ]; then
     fi
 else
     if [ "$action" == "g" ]; then
-        ddcutil getvcp 10 | sed -n 's/.*current value = *\([0-9]*\).*/\1/p'
+        ddcutil --display="$ddcutil_id" getvcp 10 | sed -n 's/.*current value = *\([0-9]*\).*/\1/p'
     else
         if [ "$action" == "-" ]; then
-            ddcutil setvcp 10 - 5
+            ddcutil --display="$ddcutil_id" setvcp 10 - 5
         elif [ "$action" == "+" ]; then
-            ddcutil setvcp 10 + 5
+            ddcutil --display="$ddcutil_id" setvcp 10 + 5
         else
-            ddcutil setvcp 10 "$action"
+            ddcutil --display="$ddcutil_id" setvcp 10 "$action"
         fi
     fi
 fi
