@@ -12,8 +12,7 @@ if [ "$monitor_name" == "" ]; then
     monitor_name=$(echo $monitor_data | jq -r '.[] | select(.focused == true) | .name')
 fi
 
-monitor_id=$(echo "$monitor_data" | jq -r ".[] | select(.name == \"$monitor_name\") | .id")
-ddcutil_id=$((monitor_id + 1))
+monitor_serial=$(echo "$monitor_data" | jq -r ".[] | select(.name == \"$monitor_name\") | .serial")
 
 if [ "$monitor_name" == "eDP-1" ]; then
     if [ "$action" == "g" ]; then
@@ -27,14 +26,14 @@ if [ "$monitor_name" == "eDP-1" ]; then
     fi
 else
     if [ "$action" == "g" ]; then
-        ddcutil --display="$ddcutil_id" getvcp 10 | sed -n 's/.*current value = *\([0-9]*\).*/\1/p'
+        ddcutil -n "$monitor_serial" getvcp 10 | sed -n 's/.*current value = *\([0-9]*\).*/\1/p'
     else
         if [ "$action" == "-" ]; then
-            ddcutil --display="$ddcutil_id" setvcp 10 - 5
+            ddcutil -n "$monitor_serial" setvcp 10 - 5
         elif [ "$action" == "+" ]; then
-            ddcutil --display="$ddcutil_id" setvcp 10 + 5
+            ddcutil -n "$monitor_serial" setvcp 10 + 5
         else
-            ddcutil --display="$ddcutil_id" setvcp 10 "$action"
+            ddcutil -n "$monitor_serial" setvcp 10 "$action"
         fi
     fi
 fi
