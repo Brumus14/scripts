@@ -12,7 +12,8 @@ if [ "$monitor_name" == "" ]; then
     monitor_name=$(echo $monitor_data | jq -r '.[] | select(.focused == true) | .name')
 fi
 
-monitor_serial=$(echo "$monitor_data" | jq -r ".[] | select(.name == \"$monitor_name\") | .serial")
+monitor_id=$(echo "$monitor_data" | jq -r ".[] | select(.name == \"$monitor_name\") | .id")
+ddcutil_id=$((monitor_id + 1))
 
 if [ "$monitor_name" == "eDP-1" ]; then
     if [ "$action" == "g" ]; then
@@ -26,14 +27,23 @@ if [ "$monitor_name" == "eDP-1" ]; then
     fi
 else
     if [ "$action" == "g" ]; then
-        ddcutil -n "$monitor_serial" getvcp 10 | sed -n 's/.*current value = *\([0-9]*\).*/\1/p'
+        ddcutil --display="$ddcutil_id" getvcp 10 | sed -n 's/.*current value = *\([0-9]*\).*/\1/p'
     else
         if [ "$action" == "-" ]; then
-            ddcutil -n "$monitor_serial" setvcp 10 - 5
+            ddcutil --display="$ddcutil_id" setvcp 10 - 5
+            brightness_level=$(eww get brightness_level$monitor_id)
+            new_brightness_level=$(($brightness_level - 5 < 0 ? 0 : $brightness_level - 5))
+            eww update brightness_level$monitor_id=$new_brightness_level
         elif [ "$action" == "+" ]; then
-            ddcutil -n "$monitor_serial" setvcp 10 + 5
+            ddcutil --display="$ddcutil_id" setvcp 10 + 5
+            brightness_level=$(eww get brightness_level$monitor_id)
+            new_brightness_level=$(($brightness_level + 5 > 100 ? 100 : $brightness_level + 5))
+            eww update brightness_level$monitor_id=$new_brightness_level
         else
-            ddcutil -n "$monitor_serial" setvcp 10 "$action"
+            ddcutil --display="$ddcutil_id" setvcp 10 "$action"
+            brightness_level=$(($action > 100 ? 100 : $action))
+            brightness_level=$(($brightness_level < 0 ? 0 : $brightness_level))
+            eww update brightness_level$monitor_id=$brightness_level
         fi
     fi
 fi
