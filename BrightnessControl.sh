@@ -1,7 +1,3 @@
-#!/usr/bin/env sh
-
-arg=$1
-
 #!/bin/bash
 
 action=$1
@@ -40,10 +36,10 @@ else
             new_brightness_level=$(($brightness_level + 5 > 100 ? 100 : $brightness_level + 5))
             eww update brightness_level$monitor_id=$new_brightness_level
         else
-            ddcutil --display="$ddcutil_id" setvcp 10 "$action"
             brightness_level=$(($action > 100 ? 100 : $action))
             brightness_level=$(($brightness_level < 0 ? 0 : $brightness_level))
             eww update brightness_level$monitor_id=$brightness_level
+            ddcutil --display="$ddcutil_id" setvcp 10 "$brightness_level"
         fi
     fi
 fi
